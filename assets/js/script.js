@@ -70,6 +70,68 @@ function calculateResult() {
     updateResult();
 }
 
+
+function toggleSign() {
+    // Determine which value to toggle
+    let targetValue = '';
+    let isRight = false;
+    
+    if (right.length > 0) {
+        targetValue = right;
+        isRight = true;
+    } else if (left.length > 0) {
+        targetValue = left;
+        isRight = false;
+    } else {
+        return;
+    }
+    
+    // Check if the value is valid for sign toggle
+    if (targetValue === 'Error') return;
+    
+    targetValue = targetValue.replace(/[()]/g, '');
+    
+    // Parse the number
+    let num = parseFloat(targetValue);
+    if (isNaN(num)) return;
+    
+    // Toggle the sign
+    num = -num;
+    
+    // Format the result
+    let newValue = num.toString();
+    
+    // Update the appropriate variable
+    if (isRight) {
+        right = newValue;
+    } else {
+        left = newValue;
+    }
+    
+    updateResult();
+    
+    const wordResult = document.getElementById('word-result');
+    const wordArea = document.getElementById('word-area');
+    
+    wordResult.innerHTML = '<span class="small-label">Sign Changed</span><strong>' + 
+                          (num >= 0 ? 'Positive: ' : 'Negative: ') + 
+                          Math.abs(num) + '</strong>';
+    wordArea.style.display = 'flex';
+    
+    // Auto-hide after 2 seconds
+    setTimeout(() => {
+        if (left && !operator && !right) {
+            wordResult.innerHTML = '<span class="small-label">Result in words</span><strong>' + numberToWords(left) + '</strong>';
+            wordArea.style.display = 'flex';
+        } else {
+            wordArea.style.display = 'none';
+        }
+        enableSpeakButton();
+    }, 2000);
+    
+    enableSpeakButton();
+}
+
 function numberToWords(num) {
     if (num === 'Error') return 'Error';
     if (num === '') return '';
@@ -154,8 +216,6 @@ function speakResult() {
     const speakBtn = document.getElementById('speak-btn');
     const wordResultEl = document.getElementById('word-result');
 
-    // Get text content only (strips the <span class="small-label"> part if needed)
-    // Actually we just want the number part
     const words = wordResultEl.querySelector('strong')?.innerText || '';
 
     if (!words) return;
