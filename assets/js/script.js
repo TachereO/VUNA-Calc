@@ -1,5 +1,170 @@
 var currentExpression = '';
 
+var currencyRates = {
+  'USD': 1,
+  'EUR': 0.92,
+  'GBP': 0.79,
+  'JPY': 149.50,
+  'CAD': 1.37,
+  'AUD': 1.52,
+  'NGN': 1500.00
+};
+
+const unitConversions = {
+  'length': {
+    'km': 1000,
+    'm': 1,
+    'mile': 1609.34,
+    'yard': 0.9144,
+    'ft': 0.3048,
+    'inch': 0.0254
+  },
+  'weight': {
+    'kg': 1,
+    'g': 0.001,
+    'lb': 0.453592,
+    'oz': 0.0283495
+  },
+  'temperature': {
+    'C': { offset: 0, scale: 1 },
+    'F': { offset: 32, scale: 5/9 },
+    'K': { offset: -273.15, scale: 1 }
+  }
+};
+
+function convertUnit(type) {
+  if (type === 'length') {
+    const value = parseFloat(document.getElementById('length-value').value) || 0;
+    const fromUnit = document.getElementById('from-length').value;
+    const toUnit = document.getElementById('to-length').value;
+    
+    if (value === 0) {
+      document.getElementById('length-result').textContent = '0';
+      return;
+    }
+    
+    const meters = value * unitConversions['length'][fromUnit];
+    const result = meters / unitConversions['length'][toUnit];
+    document.getElementById('length-result').textContent = formatResult(result);
+    updateExampleConversion(result);
+  } 
+  else if (type === 'weight') {
+    const value = parseFloat(document.getElementById('weight-value').value) || 0;
+    const fromUnit = document.getElementById('from-weight').value;
+    const toUnit = document.getElementById('to-weight').value;
+    
+    if (value === 0) {
+      document.getElementById('weight-result').textContent = '0';
+      return;
+    }
+    
+    const kg = value * unitConversions['weight'][fromUnit];
+    const result = kg / unitConversions['weight'][toUnit];
+    document.getElementById('weight-result').textContent = formatResult(result);
+  } 
+  else if (type === 'temperature') {
+    const value = parseFloat(document.getElementById('temp-value').value) || 0;
+    const fromUnit = document.getElementById('from-temp').value;
+    const toUnit = document.getElementById('to-temp').value;
+    
+    let celsius;
+    if (fromUnit === 'C') {
+      celsius = value;
+    } else if (fromUnit === 'F') {
+      celsius = (value - 32) * 5/9;
+    } else if (fromUnit === 'K') {
+      celsius = value - 273.15;
+    }
+    
+    let result;
+    if (toUnit === 'C') {
+      result = celsius;
+    } else if (toUnit === 'F') {
+      result = celsius * 9/5 + 32;
+    } else if (toUnit === 'K') {
+      result = celsius + 273.15;
+    }
+    
+    document.getElementById('temp-result').textContent = formatResult(result);
+  }
+  else if (type === 'currency') {
+    const value = parseFloat(document.getElementById('currency-value').value) || 0;
+    const fromCurrency = document.getElementById('from-currency').value;
+    const toCurrency = document.getElementById('to-currency').value;
+    
+    if (value === 0 || !currencyRates[fromCurrency] || !currencyRates[toCurrency]) {
+      document.getElementById('currency-result').textContent = '0';
+      return;
+    }
+    
+    const usd = value / currencyRates[fromCurrency];
+    const result = usd * currencyRates[toCurrency];
+    document.getElementById('currency-result').textContent = formatResult(result);
+  }
+}
+
+// Initialize converter displays on load
+window.addEventListener('DOMContentLoaded', function() {
+  try {
+    convertUnit('length');
+    convertUnit('weight');
+    convertUnit('temperature');
+    convertUnit('currency');
+  } catch (e) {
+    console.warn('Converter init error:', e);
+  }
+});
+
+function formatResult(value) {
+  return value.toFixed(4);
+}
+
+function updateExampleConversion(value) {
+  document.getElementById('example-result').textContent = formatResult(value);
+  document.getElementById('example-add').textContent = formatResult(value + 10);
+}
+
+function fetchCurrencyRates() {
+  const btn = document.getElementById('currency-refresh-btn');
+  if (btn) {
+    btn.disabled = true;
+    btn.textContent = '⏳';
+  }
+  
+  fetch('https://api.exchangerate-api.com/v4/latest/USD')
+    .then(response => response.json())
+    .then(data => {
+      if (data.rates) {
+        alert('Currency rates fetched successfully.');
+        console.log('Fetched currency rates:', data);    
+        // API returns rates relative to USD (1 USD = data.rates[currency])
+        currencyRates['EUR'] = data.rates.EUR || currencyRates['EUR'];
+        currencyRates['GBP'] = data.rates.GBP || currencyRates['GBP'];
+        currencyRates['JPY'] = data.rates.JPY || currencyRates['JPY'];
+        currencyRates['CAD'] = data.rates.CAD || currencyRates['CAD'];
+        currencyRates['AUD'] = data.rates.AUD || currencyRates['AUD'];
+        currencyRates['NGN'] = data.rates.NGN || currencyRates['NGN'];
+
+        const timestamp = new Date().toLocaleTimeString();
+        document.getElementById('currency-timestamp').textContent = `Last updated: ${timestamp}`;
+
+        convertUnit('currency');
+        if (btn) {
+          btn.textContent = '🔄';
+          btn.disabled = false;
+        }
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching currency rates:', error);
+      document.getElementById('currency-timestamp').textContent = 'Unable to fetch live rates';
+      if (btn) {
+        btn.textContent = '🔄';
+        btn.disabled = false;
+      }
+    });
+}
+
 function appendToResult(value) {
     currentExpression += value.toString();
     updateResult();
@@ -191,6 +356,8 @@ function enableSpeakButton() {
     const hasContent = document.getElementById('word-result').innerHTML.trim().length > 0;
     speakBtn.disabled = !hasContent;
 }
+
+fetchCurrencyRates()
 
 function copyResult() {
     const text = document.getElementById('result').value;
