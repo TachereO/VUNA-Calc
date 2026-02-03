@@ -297,18 +297,6 @@ function checkPrime() {
     enableSpeakButton();
 }
 
-    if (steps.length < MAX_STEPS) {
-        steps.push(`Step ${steps.length + 1}: ${l} ${operator} ${r} = ${result}`);
-    }
-
-    left = result.toString();
-    operator = '';
-    right = '';
-
-    updateStepsDisplay();
-    updateResult();
-}
-
 // ------------------------------
 // Convert Number to Words
 // ------------------------------
@@ -488,3 +476,4 @@ function percentToResult() {
     }
 }
   
+
