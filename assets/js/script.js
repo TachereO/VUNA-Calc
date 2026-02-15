@@ -1661,7 +1661,7 @@ function solveSimultaneous() {
     let input = document.getElementById("result").value.trim();
 
     if (!input || input === "0") {
-        alert("Enter: a1,b1,c1,a2,b2,c2 where a1+b1=c1,a2+b2=c2 .. the commas are necessary");
+        alert("Enter: a1,b1,c1,a2,b2,c2 where a1+b1=c1, a2+b2=c2 .. the commas are necessary");
         return;
     }
 
