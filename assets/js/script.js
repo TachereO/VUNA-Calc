@@ -301,3 +301,30 @@ function updateStepsDisplay() {
 
   stepsDiv.innerText = steps.join("\n");
 }
+
+// Function to show/hide the matrix section
+function toggleMatrix() {
+    const content = document.getElementById("matrix-content");
+    const arrow = document.getElementById("matrix-arrow");
+    
+    if (content.style.display === "none") {
+        content.style.display = "block";
+        arrow.style.transform = "rotate(180deg)";
+    } else {
+        content.style.display = "none";
+        arrow.style.transform = "rotate(0deg)";
+    }
+}
+
+// Function to calculate the 2x2 determinant
+function calculateDeterminant() {
+    const a = parseFloat(document.getElementById('m11').value) || 0;
+    const b = parseFloat(document.getElementById('m12').value) || 0;
+    const c = parseFloat(document.getElementById('m21').value) || 0;
+    const d = parseFloat(document.getElementById('m22').value) || 0;
+
+    // Formula: (a * d) - (b * c)
+    const det = (a * d) - (b * c);
+    
+    document.getElementById('matrix-result').innerText = det;
+}
