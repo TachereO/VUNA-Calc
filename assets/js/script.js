@@ -482,6 +482,27 @@ function tenPower() {
 }
 
 // ------------------------------
+// RECIPROCAL FUNCTION (1/x)
+// ------------------------------
+function calculateReciprocal() {
+  if (!currentExpression) return;
+
+  const x = parseFloat(currentExpression);
+  
+  if (isNaN(x)) {
+    currentExpression = "Error";
+  } else if (x === 0) {
+    currentExpression = "Undefined";
+  } else {
+    const result = 1 / x;
+    // Remove trailing zeros and unnecessary decimal point
+    currentExpression = parseFloat(result.toFixed(10)).toString();
+  }
+
+  updateResult();
+}
+
+// ------------------------------
 // HEXADECIMAL CONVERSION FEATURE
 // ------------------------------
 /**
