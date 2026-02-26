@@ -539,7 +539,7 @@ function convertToHex() {
   wordResult.innerHTML = displayMessage;
   wordArea.style.display = "flex";
 
-  // Update the main display to show the hex value with 0x prefix
+  // Update the main display to show the hex value with 0x prefixing
   currentExpression = "0x" + hexValue;
   updateResult();
 
